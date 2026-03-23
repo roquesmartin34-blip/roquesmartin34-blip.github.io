@@ -1,1 +1,0 @@
-# roquesmartin34-blip.github.io
