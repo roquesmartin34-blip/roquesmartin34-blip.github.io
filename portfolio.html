@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alex Morel — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0c;
+    --bg2: #111115;
+    --bg3: #18181f;
+    --border: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold2: #e8c97a;
+    --text: #e8e6e0;
+    --muted: #7a7870;
+    --accent: #c9a84c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-follower {
+    width: 32px; height: 32px;
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.4s ease, width 0.3s, height 0.3s;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1000; opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 28px 60px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  nav.scrolled {
+    background: rgba(10,10,12,0.92);
+    backdrop-filter: blur(12px);
+    border-color: var(--border);
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 300;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-links { display: flex; gap: 40px; list-style: none; }
+  .nav-links a {
+    font-size: 11px; letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute;
+    bottom: -4px; left: 0; right: 0;
+    height: 1px; background: var(--gold);
+    transform: scaleX(0); transition: transform 0.3s;
+    transform-origin: left;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 120px 60px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(201,168,76,0.06) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 40% at 20% 80%, rgba(201,168,76,0.03) 0%, transparent 60%);
+  }
+  .hero-line {
+    position: absolute; top: 0; left: 60px;
+    width: 1px; height: 100%;
+    background: linear-gradient(to bottom, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
+    opacity: 0.15;
+  }
+  .hero-content { position: relative; max-width: 900px; }
+  .hero-tag {
+    font-size: 11px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 28px;
+    opacity: 0; animation: fadeUp 0.8s 0.2s forwards;
+  }
+  .hero-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(72px, 10vw, 140px);
+    font-weight: 300; line-height: 0.9;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    opacity: 0; animation: fadeUp 0.8s 0.4s forwards;
+  }
+  .hero-name em {
+    font-style: italic; color: var(--gold);
+    display: block;
+  }
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(20px, 3vw, 32px);
+    font-weight: 300; font-style: italic;
+    color: var(--muted); margin-bottom: 40px;
+    opacity: 0; animation: fadeUp 0.8s 0.6s forwards;
+  }
+  .hero-desc {
+    font-size: 13px; line-height: 1.9;
+    color: var(--muted); max-width: 480px;
+    margin-bottom: 56px;
+    opacity: 0; animation: fadeUp 0.8s 0.8s forwards;
+  }
+  .hero-cta {
+    display: flex; gap: 20px; align-items: center;
+    opacity: 0; animation: fadeUp 0.8s 1s forwards;
+  }
+  .btn-primary {
+    display: inline-block;
+    padding: 14px 36px;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .btn-primary::before {
+    content: ''; position: absolute;
+    inset: 0; background: var(--gold);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .btn-primary:hover::before { transform: scaleX(1); }
+  .btn-primary span { position: relative; }
+  .btn-primary:hover { color: var(--bg); }
+  .hero-scroll {
+    font-size: 11px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--muted);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 12px;
+    transition: color 0.2s;
+  }
+  .hero-scroll:hover { color: var(--text); }
+  .hero-scroll::before {
+    content: ''; display: inline-block;
+    width: 40px; height: 1px; background: currentColor;
+  }
+  .hero-number {
+    position: absolute; right: 60px; bottom: 60px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 200px; font-weight: 300;
+    color: rgba(255,255,255,0.015);
+    line-height: 1; user-select: none;
+    letter-spacing: -0.05em;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 120px 60px;
+    position: relative;
+  }
+  .section-header {
+    display: flex; align-items: center; gap: 24px;
+    margin-bottom: 80px;
+  }
+  .section-number {
+    font-size: 11px; letter-spacing: 0.15em;
+    color: var(--gold); opacity: 0.7;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 300; letter-spacing: -0.01em;
+  }
+  .section-line {
+    flex: 1; height: 1px;
+    background: var(--border);
+  }
+
+  /* ABOUT */
+  #about { background: var(--bg2); }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px; align-items: start;
+  }
+  .about-text p {
+    font-size: 14px; line-height: 2;
+    color: var(--muted); margin-bottom: 24px;
+  }
+  .about-text p strong {
+    color: var(--text); font-weight: 400;
+  }
+  .about-info { display: flex; flex-direction: column; gap: 0; }
+  .info-row {
+    display: flex; justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .info-label {
+    font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold);
+  }
+  .info-value { font-size: 13px; color: var(--text); }
+  .contact-links {
+    display: flex; gap: 16px; margin-top: 48px;
+  }
+  .contact-link {
+    padding: 10px 20px;
+    border: 1px solid var(--border);
+    font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .contact-link:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* SKILLS */
+  #skills { background: var(--bg); }
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+  .skill-card {
+    background: var(--bg3);
+    padding: 40px 36px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  .skill-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    transform: scaleX(0); transition: transform 0.4s;
+  }
+  .skill-card:hover { background: #1e1e27; }
+  .skill-card:hover::before { transform: scaleX(1); }
+  .skill-icon {
+    font-size: 28px; margin-bottom: 20px;
+    display: block;
+  }
+  .skill-category {
+    font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .skill-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px; font-weight: 300;
+    margin-bottom: 20px;
+  }
+  .skill-tags {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .tag {
+    font-size: 10px; letter-spacing: 0.1em;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .skill-card:hover .tag {
+    border-color: rgba(201,168,76,0.3); color: var(--text);
+  }
+  .skill-level {
+    margin-top: 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .level-bar {
+    flex: 1; height: 1px;
+    background: var(--border); position: relative;
+  }
+  .level-fill {
+    position: absolute; top: 0; left: 0;
+    height: 100%; background: var(--gold);
+    transition: width 1s ease;
+  }
+  .level-text { font-size: 10px; color: var(--muted); }
+
+  /* EXPERIENCE */
+  #experience { background: var(--bg2); }
+  .timeline { position: relative; padding-left: 40px; }
+  .timeline::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 1px; background: var(--border);
+  }
+  .exp-item {
+    position: relative; padding-bottom: 64px;
+    opacity: 0; transform: translateX(-20px);
+    transition: opacity 0.6s, transform 0.6s;
+  }
+  .exp-item.visible { opacity: 1; transform: translateX(0); }
+  .exp-dot {
+    position: absolute; left: -44px; top: 6px;
+    width: 8px; height: 8px;
+    border: 1px solid var(--gold);
+    background: var(--bg);
+    border-radius: 50%;
+  }
+  .exp-date {
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .exp-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px; font-weight: 300;
+    margin-bottom: 4px;
+  }
+  .exp-company {
+    font-size: 12px; color: var(--muted);
+    letter-spacing: 0.08em; margin-bottom: 20px;
+  }
+  .exp-desc {
+    font-size: 13px; line-height: 1.9;
+    color: var(--muted); max-width: 600px;
+  }
+  .exp-skills {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 20px;
+  }
+
+  /* PROJECTS */
+  #projects { background: var(--bg); }
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+  }
+  .project-card {
+    background: var(--bg3);
+    padding: 48px 44px;
+    position: relative; overflow: hidden;
+    transition: background 0.3s;
+  }
+  .project-card.featured {
+    grid-column: span 2;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 60px;
+  }
+  .project-card::after {
+    content: ''; position: absolute;
+    bottom: 0; right: 0;
+    width: 80px; height: 80px;
+    border-bottom: 1px solid var(--gold);
+    border-right: 1px solid var(--gold);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .project-card:hover { background: #1a1a22; }
+  .project-card:hover::after { opacity: 0.4; }
+  .project-num {
+    font-size: 48px; font-weight: 300;
+    font-family: 'Cormorant Garamond', serif;
+    color: rgba(201,168,76,0.15);
+    position: absolute; top: 28px; right: 36px;
+    line-height: 1;
+  }
+  .project-type {
+    font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .project-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px; font-weight: 300;
+    line-height: 1.1; margin-bottom: 20px;
+  }
+  .project-desc {
+    font-size: 13px; line-height: 1.9;
+    color: var(--muted);
+  }
+  .project-link {
+    display: inline-flex; align-items: center; gap: 10px;
+    margin-top: 32px;
+    font-size: 11px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold);
+    text-decoration: none;
+    transition: gap 0.2s;
+  }
+  .project-link:hover { gap: 18px; }
+  .project-link::after {
+    content: '→';
+  }
+  .project-visual {
+    background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(201,168,76,0.02));
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 200px;
+    font-size: 64px;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 60px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px; font-weight: 300;
+  }
+  .footer-logo span { color: var(--gold); }
+  .footer-copy {
+    font-size: 11px; color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); }
+
+  @media (max-width: 768px) {
+    nav, section, #hero { padding-left: 24px; padding-right: 24px; }
+    nav { padding-top: 20px; padding-bottom: 20px; }
+    .nav-links { display: none; }
+    .about-grid, .skills-grid, .projects-grid { grid-template-columns: 1fr; }
+    .project-card.featured { grid-column: span 1; grid-template-columns: 1fr; }
+    .hero-number { display: none; }
+    footer { flex-direction: column; gap: 20px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="follower"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">Alex<span>.</span>Morel</a>
+  <ul class="nav-links">
+    <li><a href="#about">À propos</a></li>
+    <li><a href="#skills">Compétences</a></li>
+    <li><a href="#experience">Expériences</a></li>
+    <li><a href="#projects">Projets</a></li>
+    <li><a href="mailto:alex.morel@email.com">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-line"></div>
+  <div class="hero-content">
+    <p class="hero-tag">— Disponible pour de nouvelles opportunités</p>
+    <h1 class="hero-name">
+      Alex
+      <em>Morel.</em>
+    </h1>
+    <p class="hero-title">Tech · Dev · Data & Marketing</p>
+    <p class="hero-desc">
+      Ingénieur polyvalent passionné par la data, le développement et la communication digitale. 
+      Je construis des produits qui allient performance technique et impact business.
+    </p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn-primary"><span>Voir mes projets</span></a>
+      <a href="#experience" class="hero-scroll">Mon parcours</a>
+    </div>
+  </div>
+  <div class="hero-number">AM</div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-header">
+    <span class="section-number">01</span>
+    <h2 class="section-title">À propos</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>
+        Diplômé d'une école d'ingénieur, je me suis rapidement spécialisé à l'intersection de la 
+        <strong>technologie, de la data et du marketing digital</strong>. Cette triple compétence me permet 
+        de comprendre les enjeux d'un produit aussi bien côté technique que business.
+      </p>
+      <p>
+        Mon approche : construire des <strong>solutions concrètes et mesurables</strong>, 
+        que ce soit une pipeline de données, une application web ou une stratégie de croissance. 
+        Je crois que les meilleurs produits naissent quand la technique et la créativité se rencontrent.
+      </p>
+      <p>
+        En dehors du travail, je m'intéresse à l'IA générative, au design de systèmes, et à la 
+        façon dont les données transforment les décisions métier.
+      </p>
+      <div class="contact-links">
+        <a href="mailto:alex.morel@email.com" class="contact-link">Email</a>
+        <a href="#" class="contact-link">LinkedIn</a>
+        <a href="#" class="contact-link">GitHub</a>
+        <a href="#" class="contact-link">CV PDF</a>
+      </div>
+    </div>
+    <div class="about-info">
+      <div class="info-row">
+        <span class="info-label">Localisation</span>
+        <span class="info-value">Lyon, France</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Disponibilité</span>
+        <span class="info-value">Immédiate</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Expérience</span>
+        <span class="info-value">3+ ans</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Formation</span>
+        <span class="info-value">Ingénieur / Bac+5</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Langues</span>
+        <span class="info-value">Français · Anglais (C1)</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Type de poste</span>
+        <span class="info-value">CDI · Freelance</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-header">
+    <span class="section-number">02</span>
+    <h2 class="section-title">Compétences</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <span class="skill-icon">⚙️</span>
+      <p class="skill-category">Tech & Dev</p>
+      <h3 class="skill-name">Développement</h3>
+      <div class="skill-tags">
+        <span class="tag">Python</span>
+        <span class="tag">JavaScript</span>
+        <span class="tag">React</span>
+        <span class="tag">Node.js</span>
+        <span class="tag">SQL</span>
+        <span class="tag">Git</span>
+      </div>
+      <div class="skill-level">
+        <div class="level-bar"><div class="level-fill" style="width:85%"></div></div>
+        <span class="level-text">Avancé</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <span class="skill-icon">📊</span>
+      <p class="skill-category">Data</p>
+      <h3 class="skill-name">Data & Analytics</h3>
+      <div class="skill-tags">
+        <span class="tag">Pandas</span>
+        <span class="tag">Tableau</span>
+        <span class="tag">BigQuery</span>
+        <span class="tag">dbt</span>
+        <span class="tag">Airflow</span>
+        <span class="tag">Power BI</span>
+      </div>
+      <div class="skill-level">
+        <div class="level-bar"><div class="level-fill" style="width:80%"></div></div>
+        <span class="level-text">Avancé</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <span class="skill-icon">📣</span>
+      <p class="skill-category">Marketing</p>
+      <h3 class="skill-name">Marketing Digital</h3>
+      <div class="skill-tags">
+        <span class="tag">SEO/SEA</span>
+        <span class="tag">GA4</span>
+        <span class="tag">CRM</span>
+        <span class="tag">A/B Testing</span>
+        <span class="tag">Growth</span>
+        <span class="tag">HubSpot</span>
+      </div>
+      <div class="skill-level">
+        <div class="level-bar"><div class="level-fill" style="width:75%"></div></div>
+        <span class="level-text">Confirmé</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-header">
+    <span class="section-number">03</span>
+    <h2 class="section-title">Expériences</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="timeline">
+    <div class="exp-item">
+      <div class="exp-dot"></div>
+      <p class="exp-date">2023 — Présent</p>
+      <h3 class="exp-title">Data & Growth Engineer</h3>
+      <p class="exp-company">TechStart SAS — Lyon</p>
+      <p class="exp-desc">
+        Conception et maintien de pipelines de données end-to-end. Mise en place de dashboards 
+        d'acquisition et de rétention. Collaboration avec les équipes marketing pour l'optimisation 
+        des campagnes via l'analyse data.
+      </p>
+      <div class="exp-skills">
+        <span class="tag">Python</span>
+        <span class="tag">dbt</span>
+        <span class="tag">BigQuery</span>
+        <span class="tag">Tableau</span>
+      </div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-dot"></div>
+      <p class="exp-date">2022 — 2023</p>
+      <h3 class="exp-title">Développeur Full-Stack</h3>
+      <p class="exp-company">Agence Numérique — Paris</p>
+      <p class="exp-desc">
+        Développement d'applications web sur mesure pour des clients PME et grands comptes. 
+        Intégration d'APIs tierces, optimisation des performances, et mise en place de 
+        stratégies d'analytics.
+      </p>
+      <div class="exp-skills">
+        <span class="tag">React</span>
+        <span class="tag">Node.js</span>
+        <span class="tag">PostgreSQL</span>
+        <span class="tag">AWS</span>
+      </div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-dot"></div>
+      <p class="exp-date">2021 — 2022</p>
+      <h3 class="exp-title">Stage — Growth Marketing</h3>
+      <p class="exp-company">ScaleUp — Remote</p>
+      <p class="exp-desc">
+        Gestion des campagnes d'acquisition digitale (Google Ads, Meta). Suivi et analyse des 
+        KPIs. Déploiement et optimisation des funnels de conversion via des tests A/B.
+      </p>
+      <div class="exp-skills">
+        <span class="tag">GA4</span>
+        <span class="tag">Google Ads</span>
+        <span class="tag">HubSpot</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-header">
+    <span class="section-number">04</span>
+    <h2 class="section-title">Projets</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="projects-grid">
+    <div class="project-card featured">
+      <div>
+        <p class="project-type">Projet featured · Data Pipeline</p>
+        <h3 class="project-title">Plateforme d'Analytics<br>Temps Réel</h3>
+        <p class="project-desc">
+          Conception d'une plateforme de suivi d'événements en temps réel pour une marketplace 
+          e-commerce. Architecture serverless, traitement de 10M+ d'événements/jour, 
+          dashboards live pour les équipes produit et marketing.
+        </p>
+        <div class="exp-skills" style="margin-top:20px">
+          <span class="tag">Kafka</span>
+          <span class="tag">BigQuery</span>
+          <span class="tag">Looker</span>
+          <span class="tag">GCP</span>
+        </div>
+        <a href="#" class="project-link">Voir le projet</a>
+      </div>
+      <div class="project-visual">📡</div>
+      <span class="project-num">01</span>
+    </div>
+    <div class="project-card">
+      <span class="project-num">02</span>
+      <p class="project-type">Web App</p>
+      <h3 class="project-title">SaaS de gestion de campagnes</h3>
+      <p class="project-desc">
+        Application web permettant de centraliser et automatiser le reporting 
+        multi-canal (Google, Meta, LinkedIn) avec export PDF automatique.
+      </p>
+      <a href="#" class="project-link">Voir le projet</a>
+    </div>
+    <div class="project-card">
+      <span class="project-num">03</span>
+      <p class="project-type">ML / NLP</p>
+      <h3 class="project-title">Analyse de sentiment client</h3>
+      <p class="project-desc">
+        Modèle NLP pour classifier les avis clients en temps réel et alimenter 
+        le CRM avec des scores d'intention automatisés.
+      </p>
+      <a href="#" class="project-link">Voir le projet</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Alex<span>.</span>Morel</div>
+  <p class="footer-copy">© 2024 — Construit avec soin à Lyon</p>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const follower = document.getElementById('follower');
+  let mx = 0, my = 0, fx = 0, fy = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.transform = `translate(${mx}px, ${my}px) translate(-50%,-50%)`;
+  });
+  function animateFollower() {
+    fx += (mx - fx) * 0.12;
+    fy += (my - fy) *.12;
+    follower.style.transform = `translate(${fx}px, ${fy}px) translate(-50%,-50%)`;
+    requestAnimationFrame(animateFollower);
+  }
+  animateFollower();
+
+  // Nav scroll
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // Intersection observer for timeline
+  const expItems = document.querySelectorAll('.exp-item');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 150);
+      }
+    });
+  }, { threshold: 0.2 });
+  expItems.forEach(el => observer.observe(el));
+
+  // Animate level bars on scroll
+  const levelBars = document.querySelectorAll('.level-fill');
+  const barObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.width = e.target.style.width;
+      }
+    });
+  }, { threshold: 0.5 });
+  levelBars.forEach(b => {
+    const w = b.style.width;
+    b.style.width = '0';
+    setTimeout(() => barObserver.observe(b), 100);
+    b.addEventListener('transitionstart', () => {});
+  });
+
+  // Trigger bar animation
+  const skillsSection = document.getElementById('skills');
+  const skillsObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      levelBars.forEach(b => {
+        const target = b.parentElement.parentElement.querySelector('.level-fill');
+      });
+      document.querySelectorAll('.level-fill').forEach(b => {
+        const widths = ['85%','80%','75%'];
+        const cards = document.querySelectorAll('.skill-card');
+        cards.forEach((card, i) => {
+          const fill = card.querySelector('.level-fill');
+          if (fill) {
+            fill.style.width = '0';
+            setTimeout(() => fill.style.width = widths[i] || '70%', 300 + i * 100);
+          }
+        });
+      });
+    }
+  }, { threshold: 0.3 });
+  skillsObserver.observe(skillsSection);
+
+  // Hover on interactive elements
+  document.querySelectorAll('a, button, .skill-card, .project-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      follower.style.width = '48px';
+      follower.style.height = '48px';
+      follower.style.borderColor = 'rgba(201,168,76,0.7)';
+    });
+    el.addEventListener('mouseleave', () => {
+      follower.style.width = '32px';
+      follower.style.height = '32px';
+      follower.style.borderColor = 'rgba(201,168,76,0.4)';
+    });
+  });
+</script>
+</body>
+</html>
